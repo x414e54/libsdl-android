@@ -4,16 +4,11 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
-SDL_PATH := ../SDL
+LOCAL_SRC_FILES := SDL_android_main.c main.c
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include
-
-# Add your application source files here...
-LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
-	main.c
-
-LOCAL_SHARED_LIBRARIES := SDL2
+LOCAL_STATIC_LIBRARIES := SDL2_static
 
 LOCAL_LDLIBS := -lGLESv1_CM -llog
 
 include $(BUILD_SHARED_LIBRARY)
+$(call import-module,SDL)LOCAL_PATH := $(call my-dir)

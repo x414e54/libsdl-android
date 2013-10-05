@@ -48,3 +48,18 @@ LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -landroid
 
 include $(BUILD_SHARED_LIBRARY)
+
+###########################
+#
+# SDL static library
+#
+###########################
+
+LOCAL_MODULE := SDL2_static
+
+LOCAL_MODULE_FILENAME := libSDL2
+
+LOCAL_LDLIBS := 
+LOCAL_EXPORT_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -landroid
+
+include $(BUILD_STATIC_LIBRARY)
