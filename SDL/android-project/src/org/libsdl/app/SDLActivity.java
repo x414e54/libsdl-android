@@ -19,6 +19,9 @@ import android.hardware.*;
     SDL Activity
 */
 public class SDLActivity extends Activity {
+    // set this to false if you do not need accelerometer or joystick support
+    public static final boolean mAccelerometerEnabled = true;
+
     private static final String TAG = "SDL";
 
     // Keep track of the paused state
@@ -582,6 +585,9 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Sensor events
     public void enableSensor(int sensortype, boolean enabled) {
+        if (!SDLActivity.mAccelerometerEnabled) {
+            return;
+        }
         // TODO: This uses getDefaultSensor - what if we have >1 accels?
         if (enabled) {
             mSensorManager.registerListener(this, 
