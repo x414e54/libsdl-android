@@ -77,13 +77,27 @@ int main(int argc, char *argv[])
         /* Wait for events */
         SDL_WaitEvent(&event);
         do {
-	    if(event.type == SDL_QUIT || event.type == SDL_KEYDOWN
-               || event.type == SDL_FINGERDOWN)
-            {
+            switch (event.type) {
+            case SDL_QUIT:
+            case SDL_KEYDOWN:
                 done = 1;
+                break;
+            case SDL_WINDOWEVENT:
+                if (SDL_GetWindowID(window) == event.window.windowID) {
+                    if(event.window.event ==  SDL_WINDOWEVENT_RESIZED) {
+                        /* SDL_WINDOWEVENT_RESIZED will trigger SDL_WINDOWEVENT_SIZE_CHANGED,
+                        so ignore it in order to avoid duplicate redraws */
+                        continue;
+                    } else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+#ifdef ANDROID /* SDL/Android bug https://bugzilla.libsdl.org/show_bug.cgi?id=1849 */
+                        SDL_GL_SwapWindow(window);
+#endif
+                    }
+                }
+                break;
             }
-        } while (SDL_PollEvent(&event));
-        
+        } while (!done && SDL_PollEvent(&event));
+        if (done) break;
         
         /* Draw a gray background */
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
