@@ -1,7 +1,7 @@
 libsdl-android
 ==============
 
-This is a custom Android project template for libSDL 2 with libSDL 2 patches to enable static linking and fix or workaround some bugs.
+This is a custom Android project template for libSDL 2 with libSDL 2 patches to fix or workaround some SDL bugs.
 
 Just copy the SDL folder on top of the libSDL source code.
 
