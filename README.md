@@ -3,7 +3,15 @@ libsdl-android
 
 This is a custom Android project template for libSDL 2 with libSDL 2 patches to fix or workaround some SDL bugs.
 
-Just copy the SDL folder on top of the libSDL source code.
+Usage instructions:
+
+Apply the patches from libSDL.patch on top of your libSDL source tree:
+
+	patch -p1 <libSDL.patch
+
+The android-project folder contains a fully working project template. Copy this folder to a new location and start hacking.
+
+See the instructions in libSDL's README-android.txt on how to build the project.
 
 Implementation details: http://en.wildservices.net/2013/10/making-libsdl-2-apps-on-android.html
 
