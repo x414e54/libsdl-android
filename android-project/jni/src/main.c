@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <android/log.h>
-#define  LOG_TAG    "main"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
-
 #include "SDL.h"
 
 typedef struct Sprite
@@ -57,57 +53,88 @@ void draw(SDL_Window *window, SDL_Renderer* renderer, const Sprite sprite)
     SDL_RenderCopy(renderer, sprite.texture, NULL, &destRect);
 }
 
-int main(int argc, char *argv[])
-{
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-
-    if(SDL_CreateWindowAndRenderer(0, 0, 0, &window, &renderer) < 0)
-        exit(2);
-
+/* Main event/render loop */
+int runEventLoop(SDL_Window *window, SDL_Renderer *renderer) {
     Sprite sprite = LoadSprite("sample.bmp", renderer);
-    if(sprite.texture == NULL)
-        exit(2);
+    if (sprite.texture == NULL) {
+        SDL_Log("Error loading sample.bmp: %s", SDL_GetError());
+        return 1;
+    }
 
-    /* Main render loop */
-    Uint8 done = 0;
+    short done = 0;
+    short dirty = -1;
     SDL_Event event;
-    while(!done)
-    {
+    do {
+        if (dirty) {
+            /* Draw a gray background */
+            SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+            SDL_RenderClear(renderer);
+            
+            draw(window, renderer, sprite);
+        
+            /* Update the screen! */
+            SDL_RenderPresent(renderer);
+
+            dirty = 0;
+        }
+
         /* Wait for events */
         SDL_WaitEvent(&event);
         do {
             switch (event.type) {
-            case SDL_QUIT:
-            case SDL_KEYDOWN:
-                done = 1;
-                break;
-            case SDL_WINDOWEVENT:
-                if (SDL_GetWindowID(window) == event.window.windowID) {
-                    if(event.window.event ==  SDL_WINDOWEVENT_RESIZED) {
-                        /* SDL_WINDOWEVENT_RESIZED will trigger SDL_WINDOWEVENT_SIZE_CHANGED,
-                        so ignore it in order to avoid duplicate redraws */
-                        continue;
-                    } else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-#ifdef ANDROID /* SDL/Android bug https://bugzilla.libsdl.org/show_bug.cgi?id=1849 */
-                        SDL_GL_SwapWindow(window);
-#endif
+                case SDL_QUIT:
+                case SDL_KEYDOWN:
+                    done = -1;
+                    break;
+                case SDL_WINDOWEVENT:
+                    if (SDL_GetWindowID(window) == event.window.windowID) {
+                        if(event.window.event ==  SDL_WINDOWEVENT_RESIZED) {
+                            /* SDL_WINDOWEVENT_RESIZED will trigger SDL_WINDOWEVENT_SIZE_CHANGED,
+                            so ignore it in order to avoid duplicate redraws */
+                            SDL_Log("SDL_WINDOWEVENT_RESIZED");
+                            continue;
+                        } else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                            dirty = -1;
+        #ifdef ANDROID /* SDL/Android bug https://bugzilla.libsdl.org/show_bug.cgi?id=1849 */
+                            SDL_Log("SDL_WINDOWEVENT_SIZE_CHANGED");
+                            SDL_GL_SwapWindow(window);
+        #endif
+                        }
                     }
-                }
-                break;
+                    break;
             }
+
         } while (!done && SDL_PollEvent(&event));
-        if (done) break;
-        
-        /* Draw a gray background */
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(renderer);
-        
-        draw(window, renderer, sprite);
-    
-        /* Update the screen! */
-        SDL_RenderPresent(renderer);
+    } while (!done);
+
+    SDL_DestroyTexture(sprite.texture);
+
+    return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+
+    /* Initialize stuff */
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) != 0) {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+    if (SDL_CreateWindowAndRenderer(0, 0, 0, &window, &renderer) < 0) {
+        SDL_Log("Error creating window or renderer: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
     }
 
-    exit(0);
+    /* run the main event loop */
+    int rc = runEventLoop(window, renderer);
+
+    /* cleanup */
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return rc;
 }

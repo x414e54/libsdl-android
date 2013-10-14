@@ -409,6 +409,13 @@ public class SDLActivity extends Activity {
         }
         return Arrays.copyOf(filtered, used);
     }
+
+    /**
+     * Terminates the app.
+     */
+    public static void doFinish() {
+        mSingleton.finish();
+    }
 }
 
 /**
@@ -420,7 +427,8 @@ class SDLMain implements Runnable {
         // Runs SDL_main()
         SDLActivity.nativeInit();
 
-        //Log.v("SDL", "SDL thread terminated");
+        Log.v("SDL", "SDL thread terminated");
+        SDLActivity.doFinish();
     }
 }
 

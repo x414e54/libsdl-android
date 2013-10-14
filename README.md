@@ -5,6 +5,8 @@ This is a custom Android project template for libSDL 2 with libSDL 2 patches to 
 
 Usage instructions:
 
+Requires libSDL 2.0.1 rev. 7804. Get it from the [Mercurial repository][1] or get the [latest source snapshot][1].
+
 Apply the patches from libSDL.patch on top of your libSDL source tree:
 
 	patch -p1 <libSDL.patch
@@ -21,3 +23,5 @@ TODO:
 - The main native thread does not receive `SDL_QUIT` when the OS wants to kill the app ([bug 2041](https://bugzilla.libsdl.org/show_bug.cgi?id=2041)).
 - If we exit from the main native thread, the app does not terminate.
 - Port the iOS SDL tests to Android.
+
+[1]: http://libsdl.org/hg.php
